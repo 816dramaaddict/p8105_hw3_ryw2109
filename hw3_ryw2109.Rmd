@@ -43,7 +43,7 @@ nynoaa_df %>%
 ```
 Reasonable units for maximum and minimum temperature is Celsius, and reasonable units for precipitation, snowfall, and snowfall depth is mm. For snowfall, the most commonly observed value is 0 mm to which there were 2008508 observed data values; this is because snow does not commonly occur throughout the year.
 
-```{r Q1_dataset_B}
+```{r Q1_B}
 # Make a two-panel plot showing the average max temperature in January and in July in each station across years
 nynoaa_df %>% 
   group_by(
@@ -66,3 +66,18 @@ nynoaa_df %>%
 ```
 
 The average maximum temperature in January is much lower than that of July. There is one outlier in July around 1985 to which the temperature is slightly colder than the other average maximum temperature in July.
+
+```{r Q1_C}
+nynoaa_df %>% 
+  ggplot(aes (x = tmax , y = tmin) ) + 
+  geom_hex()
+
+nynoaa_df %>% 
+  ggplot(aes (x = year , y = snow) ) + 
+  geom_point() +
+  geom_density_ridges() +
+  scale_y_continuous(
+    limits = c(0,100)
+)
+```
+
