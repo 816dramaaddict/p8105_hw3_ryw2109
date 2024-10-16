@@ -60,7 +60,7 @@ nynoaa_df %>%
     mean_tmax = mean(tmax, na.rm = TRUE) # average max temperature
     ) %>% 
   ggplot(aes(x = year, y = mean_tmax, group = id, color = month)) + 
-  geom_point() + 
+  geom_point(aes(alpha = 0.3)) + 
   facet_grid(. ~ month) + #two-panel plot 
   labs(
     title = "Mean monthly temperature for each station across years for January and July",
@@ -111,9 +111,7 @@ demo_accel
 
 ```
 
-After mereging the two datasets, there is now a total of `r nrow(demo_accel)` rows and `r ncol(demo_accel)` columns. The following are the variable names of the dataset:
-
-`r names(demo_accel)`
+After merging the two datasets, there is now a total of `r nrow(demo_accel)` rows and `r ncol(demo_accel)` columns. 
 
 It can be seen that the original data set had seqn, sex, age, and education recorded as dbls, however, they are integers.
 
@@ -148,7 +146,85 @@ Based on the histogram, among those with an education more than high school, it 
 
 Across the three histograms, it can be seen that there are more individuals who have an education more than high school.
 
-```{r}
+```{r Q2_C}
+total_demo_accel = demo_accel %>%
+  mutate(
+    total_activities = rowSums(select(., starts_with("min"))) # sums all the values of min1:min1440 for each participant
+  ) %>% 
+  select(
+    seqn, sex, age, bmi, education, total_activities
+    ) 
 
+total_demo_accel %>% 
+  ggplot(aes(x = age, y = total_activities, color = sex)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_grid(. ~ education) +
+  labs(title = "Total Activity By Age For Sex VS Education",
+       x = "Age",
+       y = "Total Activity"
+  )
 ```
 
+From the graphs, we can see that for all 3 educational levels, there is a general decrease of activity as age increases.
+
+For individuals with an education less than high school, older males had higher total activity compared to females. Between age 50 to 60, the originally decreasing total activity with age had an increase.
+
+For individuals with an education equivalent to high school, younger and older females had higher total activity compared to males. Between age 30 to 40, there seems to be an increase of total activity. At age 40, the total activity decreased and leveled off starting at age 55.
+
+For individuals with an education higher than high school, older females had higher total activity compared to males. In general, there is a general decrease in total activity as age increases.
+
+```{r Q2_D}
+long_hour_demo_accel = demo_accel %>%
+  select(seqn, sex, age, bmi, education, min1:min1440) %>% 
+  mutate( # converting minutes to hours
+    hour1 = rowSums(select(., min1:min60)),
+    hour2 = rowSums(select(., min61:min120)),
+    hour3 = rowSums(select(., min121:min180)),
+    hour4 = rowSums(select(., min181:min240)),
+    hour5 = rowSums(select(., min241:min300)),
+    hour6 = rowSums(select(., min301:min360)),
+    hour7 = rowSums(select(., min361:min420)),
+    hour8 = rowSums(select(., min421:min480)),
+    hour9 = rowSums(select(., min481:min540)),
+    hour10 = rowSums(select(., min541:min600)),
+    hour11 = rowSums(select(., min601:min660)),
+    hour12 = rowSums(select(., min661:min720)),
+    hour13 = rowSums(select(., min721:min780)),
+    hour14 = rowSums(select(., min781:min840)),
+    hour15 = rowSums(select(., min841:min900)),
+    hour16 = rowSums(select(., min901:min960)),
+    hour17 = rowSums(select(., min961:min1020)),
+    hour18 = rowSums(select(., min1021:min1080)),
+    hour19 = rowSums(select(., min1081:min1140)),
+    hour20 = rowSums(select(., min1141:min1200)),
+    hour21 = rowSums(select(., min1201:min1260)),
+    hour22 = rowSums(select(., min1261:min1320)),
+    hour23 = rowSums(select(., min1321:min1380)),
+    hour24 = rowSums(select(., min1381:min1440))
+  )
+
+hour_demo_accel = long_hour_demo_accel %>% 
+  select(seqn, sex, age, bmi, education, hour1:hour24) %>% 
+  pivot_longer( # converts the hour1:hour24 columns into rows
+    hour1:hour24,
+    names_to = "hr",
+    names_prefix = "",
+    values_to = "hour_activity"
+    ) %>% 
+  mutate(
+    hr = gsub("hour", "", hr),
+    hr = as.integer(hr)
+  )
+
+hour_demo_accel %>% 
+  ggplot(aes(x = hr, y = hour_activity, color = sex)) +
+  geom_point(aes(alpha = 0.5)) +
+  facet_grid(. ~ education) +
+  labs(title = "Hourly Activity For Sex VS Education",
+       x = "Activity",
+       y = "Hours"
+  )
+```
+
+The average activity of a 24 hour time period have a relatively similar spread of across all 3 education levels, with a low amount of activity within in the first 5 hours of a day to which the total activity increases peaking at hour 10-15. Males and females with an education less than high school have a relatively similar spread of exercise. For those with an education equivalent to high school, we see that the data points are darker for each hour, indicating that more males are having activities than females for a given time period. For those with an education higher than  high school, we see that the data points are lighter for each hour, indicating that more females are having activities than males for a given time period.
