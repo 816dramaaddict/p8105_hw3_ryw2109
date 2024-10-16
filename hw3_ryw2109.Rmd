@@ -22,15 +22,10 @@ knitr::opts_chunk$set(
 )
 
 theme_set(theme_bw() + theme(legend.position = "bottom"))
-
-options(
-  ggplot2.continuous.colour = "hue",
-  ggplot2.continuous.fill = "hue"
-)
 ```
 
 ### Question 1
-```{r Q3_dataset, echo = FALSE, message = FALSE, warning = FALSE}
+```{r Q1_dataset_A}
 data("ny_noaa") # calling for ny_noaa data
 # ny_noaa #displays ny_noaa
 
@@ -45,7 +40,29 @@ nynoaa_df = ny_noaa %>%
 nynoaa_df %>% 
   count(snow) %>%
   arrange(desc(n))
-
-# nynoaa_df
 ```
 Reasonable units for maximum and minimum temperature is Celsius, and reasonable units for precipitation, snowfall, and snowfall depth is mm. For snowfall, the most commonly observed value is 0 mm to which there were 2008508 observed data values; this is because snow does not commonly occur throughout the year.
+
+```{r Q1_dataset_B}
+# Make a two-panel plot showing the average max temperature in January and in July in each station across years
+nynoaa_df %>% 
+  group_by(
+    id, year, month
+    ) %>% 
+  filter(
+    month %in% c(1, 7) #January and in July
+    ) %>% 
+  summarize(
+    mean_tmax = mean(tmax, na.rm = TRUE) # average max temperature
+    ) %>% 
+  ggplot(aes(x = year, y = mean_tmax, group = id, color = month)) + 
+  geom_point() + 
+  facet_grid(. ~ month) + #two-panel plot 
+  labs(
+    title = "Mean monthly temperature for each station across years for January and July",
+    x = "Month",
+    y = "Temperature (Celsius)"
+  )
+```
+
+The average maximum temperature in January is much lower than that of July. There is one outlier in July around 1985 to which the temperature is slightly colder than the other average maximum temperature in July.
