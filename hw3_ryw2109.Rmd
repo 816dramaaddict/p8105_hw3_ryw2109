@@ -69,15 +69,13 @@ The average maximum temperature in January is much lower than that of July. Ther
 
 ```{r Q1_C}
 nynoaa_df %>% 
-  ggplot(aes (x = tmax , y = tmin) ) + 
+  ggplot(aes (x = tmin , y = tmax) ) + 
   geom_hex()
 
 nynoaa_df %>% 
-  ggplot(aes (x = year , y = snow) ) + 
-  geom_point() +
-  geom_density_ridges() +
-  scale_y_continuous(
-    limits = c(0,100)
+  filter(snow < 100, snow > 0) %>%
+  ggplot(aes (x = year , y = as.factor(year))) + 
+  geom_density_ridges()
 )
 ```
 
