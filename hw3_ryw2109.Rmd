@@ -41,6 +41,10 @@ nynoaa_df %>%
   count(snow) %>%
   arrange(desc(n))
 ```
+There is a total of `r nrow(nynoaa_df)` rows and `r ncol(nynoaa_df)` columns. The following are the variable names of the dataset:
+
+`r names(nynoaa_df)`
+
 Reasonable units for maximum and minimum temperature is Celsius, and reasonable units for precipitation, snowfall, and snowfall depth is mm. For snowfall, the most commonly observed value is 0 mm to which there were 2008508 observed data values; this is because snow does not commonly occur throughout the year.
 
 ```{r Q1_B}
@@ -78,5 +82,73 @@ ridges_nynoaa_df = nynoaa_df %>%
   geom_density_ridges() # distribution
 
 hex_nynoaa_df + ridges_nynoaa_df #two-panel plot
+```
+
+### Question 2
+```{r Q2_A}
+demograph = read_csv(file = "./data/nhanes_covar.csv", skip = 4) %>%  #import data
+    # rows 1-3 had legends
+  janitor::clean_names()  #clean column name
+
+demograph
+
+accelerometer = read_csv(file = "./data/nhanes_accel.csv") %>%  #import data
+  janitor::clean_names()  #clean column name
+
+accelerometer
+
+demo_accel = left_join(demograph , accelerometer , by = "seqn") %>% 
+    mutate ( # encode data with reasonable variable classes
+    seqn = as.integer(seqn),
+    sex = as.integer(sex),
+    age = as.integer(age),
+    education = as.integer(education)
+  ) %>%
+  filter(age >= 21) %>% # excluding participants less than 21 years of age
+  drop_na("sex", "age", "bmi") # excluding those with missing demographic data
+
+demo_accel
+
+```
+
+After mereging the two datasets, there is now a total of `r nrow(demo_accel)` rows and `r ncol(demo_accel)` columns. The following are the variable names of the dataset:
+
+`r names(demo_accel)`
+
+It can be seen that the original data set had seqn, sex, age, and education recorded as dbls, however, they are integers.
+
+```{r Q2_B}
+# table for the number of men and women in each education category
+demo_accel %>% 
+  group_by(sex, education) %>% 
+  summarize(total_count = n()) %>% 
+  pivot_wider(
+    names_from = "education",
+    values_from = total_count
+  ) %>% 
+  knitr::kable(digits = 1)
+
+# age distributions for men and women in each education category
+demo_accel %>%
+  ggplot(aes(x = age, fill = as.factor(sex))) +
+  geom_histogram(position = "dodge") +
+  facet_grid(. ~ education) +
+  labs(title = "Age Distribution For Sex VS Education",
+       x = "Age",
+       y = "Count"
+  )
+
+```
+
+Based on the histogram, among those with an education less than high school, it can be seen there is a larger number of females and males who are of an older age (60 and above). Based on the table created, there are 27 males and 28 females who have an education less than high school. 
+
+Based on the histogram, among those with an education equivalent to high school, it can be seen there is a relatively even spread across the different ages. Based on the table created, there are 35 males and 23 females who have an education if high school equivalent. 
+
+Based on the histogram, among those with an education more than high school, it can be seen there is a larger number of females and males who are of a younger age (40 and below). Based on the table created, there are 56 males and 59 females who have an education more than high school.
+
+Across the three histograms, it can be seen that there are more individuals who have an education more than high school.
+
+```{r}
+
 ```
 
