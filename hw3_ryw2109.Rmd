@@ -228,3 +228,55 @@ hour_demo_accel %>%
 ```
 
 The average activity of a 24 hour time period have a relatively similar spread of across all 3 education levels, with a low amount of activity within in the first 5 hours of a day to which the total activity increases peaking at hour 10-15. Males and females with an education less than high school have a relatively similar spread of exercise. For those with an education equivalent to high school, we see that the data points are darker for each hour, indicating that more males are having activities than females for a given time period. For those with an education higher than  high school, we see that the data points are lighter for each hour, indicating that more females are having activities than males for a given time period.
+
+### Question 3
+```{r Q3_A}
+janurary_20 = read_csv(file = "./data/Jan 2020 Citi.csv") %>%  #import data
+  janitor::clean_names() %>% #clean column name
+  mutate(date = "2020-01")
+
+janurary_24 = read_csv(file = "./data/Jan 2024 Citi.csv") %>%  #import data
+  janitor::clean_names() %>% #clean column name
+  mutate(date = "2024-01")
+
+july_20 = read_csv(file = "./data/July 2020 Citi.csv") %>%  #import data
+  janitor::clean_names()  %>% #clean column name
+  mutate(date = "2020-07")
+
+july_24 = read_csv(file = "./data/July 2024 Citi.csv") %>%  #import data
+  janitor::clean_names()  %>% #clean column name
+  mutate(date = "2024-07")
+
+citi = bind_rows(janurary_20, july_20, janurary_24, july_24)
+
+citi %>% # type of rideable_type data in the data set
+  count(rideable_type) %>%
+  arrange(desc(n))
+
+citi %>% # type of duration data in the data set --> trying to determine if time is in hr or min
+  count(duration) %>%
+  arrange(desc(duration))
+
+citi %>% # type of member_casual data in the data set
+  count(member_casual) %>%
+  arrange(desc(n))
+```
+
+In 01/2020, there were a total of `r nrow(janurary_20)` records recorded. In 01/2024, there were a total of `r nrow(janurary_24)` records recorded. In 07/2020, there were a total of `r nrow(july_20)` records recorded. In 07/2024, there were a total of `r nrow(july_24)` records recorded. 
+
+All four datasets have `r ncol(janurary_20)`. The dataset describes the type of ride an individual uses (classic or electric bike), which date of the week the ride was used, the total duration the ride was in minutes as there were values greater than 4, start and end station location, whether or not an individual was a casual or member rider.
+
+```{r Q3_B}
+# table showing the total number of rides in each combination of year and month separating casual riders and Citi Bike members
+citi %>% 
+  group_by(date, member_casual) %>% 
+  summarize(total_count = n()) %>% 
+  pivot_wider(
+    names_from = "member_casual",
+    values_from = total_count
+  ) %>% 
+  knitr::kable(digits = 1)
+```
+
+From the table above, it can be seen that as time progresses, both the number of casual riders and Citi Bike members increased. From 01/2020 to 07/2024, the number of casual riders have increased more than 10 folds and the number of Citi Bike members have increased more than 2 folds.
+
