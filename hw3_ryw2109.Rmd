@@ -233,19 +233,35 @@ The average activity of a 24 hour time period have a relatively similar spread o
 ```{r Q3_A}
 janurary_20 = read_csv(file = "./data/Jan 2020 Citi.csv") %>%  #import data
   janitor::clean_names() %>% #clean column name
-  mutate(time_period = "2020-01")
+  mutate(
+    time_period = "2020-01",
+    month = 1,
+    year = 2020
+  )
 
 janurary_24 = read_csv(file = "./data/Jan 2024 Citi.csv") %>%  #import data
   janitor::clean_names() %>% #clean column name
-  mutate(time_period = "2024-01")
+  mutate(
+    time_period = "2024-01",
+    month = 1,
+    year = 2024
+  )
 
 july_20 = read_csv(file = "./data/July 2020 Citi.csv") %>%  #import data
   janitor::clean_names()  %>% #clean column name
-  mutate(time_period = "2020-07")
+  mutate(
+    time_period = "2020-07",
+    month = 7,
+    year = 2020
+  )
 
 july_24 = read_csv(file = "./data/July 2024 Citi.csv") %>%  #import data
   janitor::clean_names()  %>% #clean column name
-  mutate(time_period = "2024-07")
+  mutate(
+    time_period = "2024-07",
+    month = 7,
+    year = 2024
+  )
 
 citi = bind_rows(janurary_20, july_20, janurary_24, july_24)
 
@@ -306,16 +322,29 @@ W 31 St & 7 Ave
 The 5 stations has a range of 146-163 riders in 07/2024.
 
 ```{r Q3_D}
+# effects of day of the week, month, and year on median ride duration
 citi %>% 
   mutate(weekends = as.factor(weekdays)) %>% 
-  arrange(desc(weekends))
-  ggplot(aes(x = weekdays, y = median_count)) +
-  geom_point(aes(size = median_count))
-  
-citi %>% 
-  
-  ggplot(aes(x = date, y = median_count)) +
-  geom_point(aes(size = median_count))
-  
+  arrange(desc(weekends)) %>% 
+  summarize(median_count = median(duration)) %>% 
+  ggplot(aes(x = weekdays, y = median_count), fill = month) +
+  geom_histogram(aes(size = median_count)) +
+  facet_grid(. ~ year) +
+  labs(title = "Median Ride Duration By Day of Week",
+       x = "Day of Week",
+       y = "Median Ride Duration"
+  )
+```
+
+```{r Q3_E}
+citi_2024 = bind_rows(janurary_24, july_24)
+
+citi_2024 %>%
+  ggplot(aes(x = duration, fill = interaction(month, rideable_type, member_casual))) +
+  geom_histogram(position = "dodge") +
+  labs(title = "Rides Duration in Janurary_24 and July 2024",
+       x = "Ride Duration",
+       y = "Count"
+  )
 ```
 
