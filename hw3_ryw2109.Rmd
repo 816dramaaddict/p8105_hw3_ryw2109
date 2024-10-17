@@ -222,8 +222,8 @@ hour_demo_accel %>%
   geom_point(aes(alpha = 0.5)) +
   facet_grid(. ~ education) +
   labs(title = "Hourly Activity For Sex VS Education",
-       x = "Activity",
-       y = "Hours"
+       x = "Hours",
+       y = "Activity"
   )
 ```
 
@@ -233,19 +233,19 @@ The average activity of a 24 hour time period have a relatively similar spread o
 ```{r Q3_A}
 janurary_20 = read_csv(file = "./data/Jan 2020 Citi.csv") %>%  #import data
   janitor::clean_names() %>% #clean column name
-  mutate(date = "2020-01")
+  mutate(time_period = "2020-01")
 
 janurary_24 = read_csv(file = "./data/Jan 2024 Citi.csv") %>%  #import data
   janitor::clean_names() %>% #clean column name
-  mutate(date = "2024-01")
+  mutate(time_period = "2024-01")
 
 july_20 = read_csv(file = "./data/July 2020 Citi.csv") %>%  #import data
   janitor::clean_names()  %>% #clean column name
-  mutate(date = "2020-07")
+  mutate(time_period = "2020-07")
 
 july_24 = read_csv(file = "./data/July 2024 Citi.csv") %>%  #import data
   janitor::clean_names()  %>% #clean column name
-  mutate(date = "2024-07")
+  mutate(time_period = "2024-07")
 
 citi = bind_rows(janurary_20, july_20, janurary_24, july_24)
 
@@ -269,7 +269,7 @@ All four datasets have `r ncol(janurary_20)`. The dataset describes the type of 
 ```{r Q3_B}
 # table showing the total number of rides in each combination of year and month separating casual riders and Citi Bike members
 citi %>% 
-  group_by(date, member_casual) %>% 
+  group_by(time_period, member_casual) %>% 
   summarize(total_count = n()) %>% 
   pivot_wider(
     names_from = "member_casual",
@@ -279,4 +279,43 @@ citi %>%
 ```
 
 From the table above, it can be seen that as time progresses, both the number of casual riders and Citi Bike members increased. From 01/2020 to 07/2024, the number of casual riders have increased more than 10 folds and the number of Citi Bike members have increased more than 2 folds.
+
+```{r Q3_C}
+# table showing the 5 most popular starting stations for July 2024
+july_24 %>% 
+  group_by(start_station_name) %>% 
+  summarize(total_count = n()) %>% 
+  arrange(desc(total_count)) %>% 
+  slice_head(n = 5) %>% # because the stations are on the columns, head() couldnt be used
+  pivot_wider(
+    names_from = "start_station_name",
+    values_from = total_count
+  )
+
+
+```
+
+The top 5 most population starting stations in 07/2024, was the following:
+
+Pier 61 at Chelsea Piers
+University Pl & E 14 St
+W 21 St & 6 Ave
+West St & Chambers St
+W 31 St & 7 Ave
+
+The 5 stations has a range of 146-163 riders in 07/2024.
+
+```{r Q3_D}
+citi %>% 
+  mutate(weekends = as.factor(weekdays)) %>% 
+  arrange(desc(weekends))
+  ggplot(aes(x = weekdays, y = median_count)) +
+  geom_point(aes(size = median_count))
+  
+citi %>% 
+  
+  ggplot(aes(x = date, y = median_count)) +
+  geom_point(aes(size = median_count))
+  
+```
 
