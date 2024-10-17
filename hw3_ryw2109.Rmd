@@ -322,29 +322,45 @@ The 5 stations has a range of 146-163 riders in 07/2024.
 ```{r Q3_D}
 # effects of day of the week, month, and year on median ride duration
 citi %>% 
-  mutate(weekends = as.factor(weekdays)) %>% 
-  arrange(desc(weekends)) %>% 
+  mutate(
+    weekdays = recode(weekdays,
+      "Monday" = "1",
+      "Tuesday" = "2",
+      "Wednesday" = "3",
+      "Thursday" = "4",
+      "Friday" = "5",
+      "Saturday" = "6",
+      "Sunday" = "7"
+      )
+  ) %>% 
+  group_by(weekdays, month, year) %>% 
   summarize(median_count = median(duration)) %>% 
-  ggplot(aes(x = weekdays, y = median_count), fill = month) +
-  geom_histogram(aes(size = median_count)) +
-  facet_grid(. ~ year) +
+  ggplot(aes(x = as.factor(weekdays), y = median_count, color = month)) +
+  geom_point() + 
+  facet_grid(. ~ as.factor(year)) +
+  scale_x_discrete(labels = c("1" = "Monday", "2" = "Tuesday", "3" = "Wednesday", 
+                               "4" = "Thursday", "5" = "Friday", "6" = "Saturday", 
+                               "7" = "Sunday")) +
   labs(title = "Median Ride Duration By Day of Week",
        x = "Day of Week",
        y = "Median Ride Duration"
   )
 ```
 
+There are more riders in July compared to January for both 2020 and 2024, and across all days of the week
+
 ```{r Q3_E}
 citi_2024 = bind_rows(janurary_24, july_24)
 
 citi_2024 %>%
-  ggplot(aes(x = duration, fill = interaction(month, rideable_type, member_casual))) +
+  group_by(month, member_casual, rideable_type) %>% 
+  ggplot(aes(x = duration, fill = interaction(member_casual, rideable_type))) +
   geom_histogram(position = "dodge") +
   facet_grid(. ~ month) +
   labs(title = "Rides Duration in Janurary_24 and July 2024",
-       x = "Ride Duration",
-       y = "Count"
+       x = "Month",
+       y = "Ride Duration"
   )
 ```
 
-There is a higher duration of rides in July compared to January, which can be seen by comparing the two graphs. In January, there is a higher number of classic bike members, whereas in July, there is a higher number of electric bike members. In both months, the peak of ride duration was around 15miles, which few individuals having a ride duration of over 50 miles.
+There is a higher duration of rides in July compared to January, which can be seen by comparing the two graphs. Both months seems to have a similar trend, where there are more electric bike riders than classic bike riders, as well as more members than casual individuals, especially in July. In both months, the peak of ride duration was around 15 miles, with relatively few individuals having a ride duration of over 50 miles.
