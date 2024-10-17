@@ -1,5 +1,5 @@
 ---
-title: "hw3_ryw2109"
+title: "p8105_hw3_ryw2109"
 author: "Rita Wang"
 date: "2024-10-16"
 output: github_document
