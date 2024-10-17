@@ -307,8 +307,6 @@ july_24 %>%
     names_from = "start_station_name",
     values_from = total_count
   )
-
-
 ```
 
 The top 5 most population starting stations in 07/2024, was the following:
@@ -342,9 +340,11 @@ citi_2024 = bind_rows(janurary_24, july_24)
 citi_2024 %>%
   ggplot(aes(x = duration, fill = interaction(month, rideable_type, member_casual))) +
   geom_histogram(position = "dodge") +
+  facet_grid(. ~ month) +
   labs(title = "Rides Duration in Janurary_24 and July 2024",
        x = "Ride Duration",
        y = "Count"
   )
 ```
 
+There is a higher duration of rides in July compared to January, which can be seen by comparing the two graphs. In January, there is a higher number of classic bike members, whereas in July, there is a higher number of electric bike members. In both months, the peak of ride duration was around 15miles, which few individuals having a ride duration of over 50 miles.
